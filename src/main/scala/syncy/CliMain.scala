@@ -16,8 +16,6 @@ object CliMain {
         // -- Create actor system for cli
         actorSystem = ActorSystem("cli", config)
         val mainActor = actorSystem.actorOf(Props[CliActor], "main")
-
-        
     }
 }
 
