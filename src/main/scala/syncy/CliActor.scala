@@ -54,8 +54,10 @@ class CliActor extends Actor {
                         serverActor ! Command("add", "bob|25")
                     } else if (input.startsWith("remove")) {
                         serverActor ! Command("remove", "bob")
-                    } else if (input.startsWith("listdata")) {
-                        serverActor ! Command("listdata", "")
+                    } else if (input.startsWith("status")) {
+                        serverActor ! Command("status", "")
+                    } else if (input.startsWith("commit")) {
+                        serverActor ! Command("commit", "")
                     }
                 }
             }
