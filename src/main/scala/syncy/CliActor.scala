@@ -35,18 +35,19 @@ class CliActor extends Actor {
             // -- Match depending on state
             inputState match {
                 case InputState.Disconnected => {
-                    input match {
-                        case "connect" => {
-                            println("Connecting ...");
-                            for (actor <- context.actorSelection(
-                                "akka.tcp://server@127.0.0.1:5150/user/main"
-                                ).resolveOne(5.seconds)) {
-                                serverActor = actor
-                                serverActor ! "Hello from cli"
-                                inputState = InputState.Base
-                            }
+                    if (input.startsWith("connect")) {
+
+                        // 5150 or 5151
+                        val port = input.split(" ")(1)
+
+                        println("Connecting to " + port);
+                        for (actor <- context.actorSelection(
+                            "akka.tcp://server@127.0.0.1:" + port + "/user/main"
+                            ).resolveOne(5.seconds)) {
+                            serverActor = actor
+                            serverActor ! "Hello from cli"
+                            inputState = InputState.Base
                         }
-                        case _ =>
                     }
                 }
                 case InputState.Base => {
