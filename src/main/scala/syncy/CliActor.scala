@@ -50,6 +50,7 @@ class CliActor extends Actor {
                             serverActor = actor
                             serverActor ! "Hello from cli"
                             inputState = InputState.Base
+                            println("Connected")
                         }
                     }
                 }
@@ -62,6 +63,11 @@ class CliActor extends Actor {
                         serverActor ! Command("status", "")
                     } else if (input.startsWith("commit")) {
                         serverActor ! Command("commit", "")
+                    } else if (input.startsWith("disconnect")) {
+                        serverActor = null
+                        inputState = InputState.Disconnected
+                    } else if (input.startsWith("merge")) {
+                        serverActor ! Command("merge", "5151")
                     }
                 }
             }

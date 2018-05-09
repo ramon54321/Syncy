@@ -7,7 +7,7 @@ object Main {
 		} else if (args(0).toLowerCase() == "cli") {
 			CliMain()
 		} else if (args(0).toLowerCase() == "server") {
-			ServerMain()
+			ServerMain(args(1)) // -- Start server at port
 		}
 	}
 }
