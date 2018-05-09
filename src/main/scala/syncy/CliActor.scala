@@ -17,7 +17,7 @@ class CliActor extends Actor {
         var inputState = InputState.Disconnected
         
         // -- Start input loop
-        var takeInput = true;
+        var takeInput = true
         while (takeInput) {
             // -- Get input
             var input = ""
@@ -26,11 +26,12 @@ class CliActor extends Actor {
             }
 
             // -- Process input
+
             // -- Match regardless of state
             input match {
                 case "quit" | "q" => {
-                        CliMain.actorSystem.terminate();
-                        takeInput = false;
+                        CliMain.actorSystem.terminate()
+                        takeInput = false
                     }
                 case _ =>
             }
@@ -39,16 +40,12 @@ class CliActor extends Actor {
             inputState match {
                 case InputState.Disconnected => {
                     if (input.startsWith("connect")) {
-
-                        // 5150 or 5151
                         val port = input.split(" ")(1)
-
-                        println("Connecting to " + port);
+                        println("Connecting to " + port)
                         for (actor <- context.actorSelection(
                             "akka.tcp://server@127.0.0.1:" + port + "/user/main"
                             ).resolveOne(5.seconds)) {
                             serverActor = actor
-                            serverActor ! "Hello from cli"
                             inputState = InputState.Base
                             println("Connected")
                         }
@@ -57,8 +54,6 @@ class CliActor extends Actor {
                 case InputState.Base => {
                     if (input.startsWith("add")) {
                         serverActor ! Command("add", input.split("\\s+")(1) + "|" + input.split("\\s+")(2))
-                    } else if (input.startsWith("remove")) {
-                        serverActor ! Command("remove", "bob")
                     } else if (input.startsWith("status")) {
                         serverActor ! Command("status", "")
                     } else if (input.startsWith("commit")) {
@@ -67,7 +62,6 @@ class CliActor extends Actor {
                         serverActor = null
                         inputState = InputState.Disconnected
                     } else if (input.startsWith("merge")) {
-                        // 5151
                         serverActor ! Command("merge", input.split("\\s+")(1))
                     }
                 }
@@ -80,3 +74,4 @@ class CliActor extends Actor {
         case _ => 
     }
 }
+
