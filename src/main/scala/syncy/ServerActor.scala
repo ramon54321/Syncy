@@ -17,7 +17,6 @@ class ServerActor extends Actor {
     var data : HashMap[String, String] = new HashMap()
 
     override def preStart(): Unit = {
-
     }
 
     override def receive: Receive = {
@@ -25,15 +24,15 @@ class ServerActor extends Actor {
         case command : Command => handleCommand(command)
         case servermsg : ServerMessage => handleServerMessage(servermsg)
         case statemsg : StateMessage => {
-                mergeServerState = statemsg.state
-                mergeWith("0")
-            }
+            mergeServerState = statemsg.state
+            mergeWith("0")
+        }
         case ApplyMessage(initialState, commonState) => {
-                applyState(initialState, commonState)
-            }
+            applyState(initialState, commonState)
+        }
         case UpdateStateMessage(newState) => {
-                state = newState
-            }
+            state = newState
+        }
         case _ => 
     }
 
@@ -52,7 +51,9 @@ class ServerActor extends Actor {
     // -- Apply states in recursive manner
     def applyState(initialState : State, commonState : State) {
         // -- Stop recursion
-        if (initialState.id == commonState.id) return
+        if (initialState.id == commonState.id) {
+            return
+        }
 
         // -- Apply changes
         initialState.changes.foreach((change) => {
@@ -127,15 +128,15 @@ class ServerActor extends Actor {
                 mergeServer ! "Merge successful"
             }
         }
-
-        
     }
 
     def findCommonState(state1 : State, state2 : State) : State = {
         if (state1.id == state2.id) return state1
         for (pState <- state1.parentState) {
             for (p2State <- state2.parentState) {
-                if (p2State.id == pState.id) return p2State
+                if (p2State.id == pState.id) {
+                    return p2State
+                }
                 return findCommonState(pState, p2State)
             }
         }
@@ -150,6 +151,7 @@ class ServerActor extends Actor {
                 println("Sending state message")
                 sender ! StateMessage(state)
             }
+            case _ =>
         }
     }
 
@@ -183,6 +185,8 @@ class ServerActor extends Actor {
                 println("Merge")
                 mergeWith(value)
             }
+            case _ =>
         }
     }
 }
+
