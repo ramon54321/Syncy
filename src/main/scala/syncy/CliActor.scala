@@ -9,6 +9,10 @@ import scala.concurrent._
 
 class CliActor extends Actor {
 
+    def printToShell(text : String) : Unit = {
+        print("\r" + text + "\n$ ")
+    }
+
     // -- Connected server
     Future {
         var serverActor : ActorRef = null
@@ -19,6 +23,8 @@ class CliActor extends Actor {
         // -- Start input loop
         var takeInput = true
         while (takeInput) {
+            print("$ ")
+
             // -- Get input
             var input = ""
             blocking {
@@ -41,13 +47,13 @@ class CliActor extends Actor {
                 case InputState.Disconnected => {
                     if (input.startsWith("connect")) {
                         val port = input.split(" ")(1)
-                        println("Connecting to " + port)
+                        printToShell("Connecting to " + port)
                         for (actor <- context.actorSelection(
                             "akka.tcp://server@127.0.0.1:" + port + "/user/main"
                             ).resolveOne(5.seconds)) {
                             serverActor = actor
                             inputState = InputState.Base
-                            println("Connected")
+                            printToShell("Connected")
                         }
                     }
                 }
@@ -70,7 +76,7 @@ class CliActor extends Actor {
     }
 
     override def receive: Receive = {
-        case s : String => println(s)
+        case s : String => printToShell(s)
         case _ => 
     }
 }
