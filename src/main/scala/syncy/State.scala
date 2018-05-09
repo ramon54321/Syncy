@@ -12,13 +12,12 @@ object State {
         return random.nextInt(1000000)
     }
 
-    val initialState = new State(new ListSet(), new ListSet())
+    val initialState = new State(new ListSet(), new ListSet(), 0)
 
     def getInitialState() : State = {
         return initialState
     }
 }
 
-case class State (val changes : ListSet[String], val parentState : ListSet[State]) {
-    val id = State.getNextId()
-}
+case class State (val changes : ListSet[String],
+    val parentState : ListSet[State], val id : Int = State.getNextId())

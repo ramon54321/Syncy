@@ -56,7 +56,7 @@ class CliActor extends Actor {
                 }
                 case InputState.Base => {
                     if (input.startsWith("add")) {
-                        serverActor ! Command("add", "bob|25")
+                        serverActor ! Command("add", input.split("\\s+")(1) + "|" + input.split("\\s+")(2))
                     } else if (input.startsWith("remove")) {
                         serverActor ! Command("remove", "bob")
                     } else if (input.startsWith("status")) {
@@ -67,7 +67,8 @@ class CliActor extends Actor {
                         serverActor = null
                         inputState = InputState.Disconnected
                     } else if (input.startsWith("merge")) {
-                        serverActor ! Command("merge", "5151")
+                        // 5151
+                        serverActor ! Command("merge", input.split("\\s+")(1))
                     }
                 }
             }

@@ -28,6 +28,10 @@ class ServerActor extends Actor {
                 mergeServerState = statemsg.state
                 mergeWith("0")
             }
+        case ApplyMessage(initialState, commonState) => {
+                applyState(initialState, commonState)
+                println("Merge successful")
+            }
         case _ => 
     }
 
@@ -44,8 +48,19 @@ class ServerActor extends Actor {
     }
 
     // -- Apply states in recursive manner
-    def applyState(state : State, commonState : State) {
+    def applyState(initialState : State, commonState : State) {
+        // -- Stop recursion
+        if (initialState.id == commonState.id) return
 
+        // -- Apply changes
+        initialState.changes.foreach((change) => {
+            data.put(change.split("\\|")(0), change.split("\\|")(1))
+        })
+
+        // -- Recurse
+        initialState.parentState.foreach((pState) => {
+            applyState(pState, commonState)
+        })
     }
 
     def makeChange(key : String, value : String) {
@@ -67,7 +82,7 @@ class ServerActor extends Actor {
                     mergeServer = actor
                     
                     this.commit()
-                    mergeServer ! ServerMessage("commit", null)
+                    mergeServer ! ServerMessage("commit")
 
                     mergeStage = 1
                 }
@@ -87,8 +102,12 @@ class ServerActor extends Actor {
                 }
 
                 // -- Apply changes
+                mergeServer ! ApplyMessage(state, commonState)
+                applyState(mergeServerState, commonState)
 
-                mergeStage = 2
+                mergeStage = 0
+
+                println("Merge successful")
             }
         }
 
@@ -96,9 +115,11 @@ class ServerActor extends Actor {
     }
 
     def findCommonState(state1 : State, state2 : State) : State = {
+        if (state1.id == state2.id) return state1
         for (pState <- state1.parentState) {
             for (p2State <- state2.parentState) {
-                if (p2State == pState) return p2State
+                if (p2State.id == pState.id) return p2State
+                return findCommonState(pState, p2State)
             }
         }
         return null
@@ -107,7 +128,7 @@ class ServerActor extends Actor {
     def handleServerMessage(servermsg : ServerMessage) {
         servermsg match {
             // -- Commit
-            case ServerMessage("commit", _) => {
+            case ServerMessage("commit") => {
                 commit()
                 println("Sending state message")
                 sender ! StateMessage(state)
@@ -124,8 +145,8 @@ class ServerActor extends Actor {
             // -- Add value to data
             case Command("add", value : String) => {
                 println("Adding value")
-                val key = (value.split("|"))(0)
-                val valu = (value.split("|"))(1)
+                val key = value.split("\\|")(0)
+                val valu = value.split("\\|")(1)
                 makeChange(key, valu)
             }
             // -- Remove value from data
