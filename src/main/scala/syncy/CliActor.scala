@@ -20,7 +20,10 @@ class CliActor extends Actor {
         var takeInput = true;
         while (takeInput) {
             // -- Get input
-            val input = StdIn.readLine()
+            var input = ""
+            blocking {
+                input = StdIn.readLine()
+            }
 
             // -- Process input
             // -- Match regardless of state
