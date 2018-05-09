@@ -30,7 +30,9 @@ class ServerActor extends Actor {
             }
         case ApplyMessage(initialState, commonState) => {
                 applyState(initialState, commonState)
-                println("Merge successful")
+            }
+        case UpdateStateMessage(newState) => {
+                state = newState
             }
         case _ => 
     }
@@ -105,9 +107,24 @@ class ServerActor extends Actor {
                 mergeServer ! ApplyMessage(state, commonState)
                 applyState(mergeServerState, commonState)
 
+                // -- Update state
+                if (state.id == commonState.id) {
+                    // -- Fast forward s1 to s2
+                    state = mergeServerState
+                } else if (mergeServerState.id == commonState.id) {
+                    // -- Fast forward s2 to s1
+                    mergeServer ! UpdateStateMessage(state)
+                } else {
+                    // -- Create merge state
+                    val mergeState = new State(new ListSet(), ListSet(state, mergeServerState))
+                    state = mergeState
+                    mergeServer ! UpdateStateMessage(mergeState)
+                }
+
                 mergeStage = 0
 
                 println("Merge successful")
+                mergeServer ! "Merge successful"
             }
         }
 
