@@ -10,9 +10,6 @@ object ServerMain {
         println(" --> Initialized as Server instance")
 
         // -- Load config
-        // val portOverride = ConfigFactory.parseString("akka.remote.netty.tcp.port=" + port)
-        // val config = portOverride.withFallback(ConfigFactory.load("config_server.conf"))
-
         val config = ConfigFactory.parseString(
             s"""
             akka {
