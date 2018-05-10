@@ -11,7 +11,23 @@ object CliMain {
         println(" --> Initialized as CLI instance")
 
         // -- Load config
-        val config = ConfigFactory.load("config_cli.conf")
+        val config = ConfigFactory.parseString(
+            """
+            akka {
+                actor {
+                    provider = "akka.remote.RemoteActorRefProvider"
+                }
+                remote {
+                    enabled-transports = ["akka.remote.netty.tcp"]
+                    netty.tcp {
+                        hostname = "127.0.0.1"
+                        port = 0
+                    }
+                }
+                loglevel = "OFF"
+            }
+            """
+        )
 
         // -- Create actor system for cli
         actorSystem = ActorSystem("cli", config)
